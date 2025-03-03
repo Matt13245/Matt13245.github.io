@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrossFit Fareham 2025 Openish</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1e1e1e;
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .leaderboard-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #f4a261;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .tab {
+            background-color: #f4a261;
+            color: #1e1e1e;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .tab.active {
+            background-color: #e76f51;
+        }
+        .leaderboard {
+            display: none;
+        }
+        .leaderboard.active {
+            display: block;
+        }
+        h2 {
+            background-color: #f4a261;
+            color: #1e1e1e;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        h3 {
+            color: #f4a261;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: #2a2a2a;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        th, td {
+            border: 1px solid #f4a261;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4a261;
+            color: #1e1e1e;
+        }
+        tr:nth-child(even) {
+            background-color: #333;
+        }
+    </style>
+    <script>
+        function showLeaderboard(gender) {
+            document.getElementById('maleLeaderboard').classList.remove('active');
+            document.getElementById('femaleLeaderboard').classList.remove('active');
+            document.getElementById(gender + 'Leaderboard').classList.add('active');
+
+            document.getElementById('maleTab').classList.remove('active');
+            document.getElementById('femaleTab').classList.remove('active');
+            document.getElementById(gender + 'Tab').classList.add('active');
+        }
+
+        function calculateOverallScores(gender) {
+            let scores = {};
+
+            // Loop through each workout table
+            for (let i = 1; i <= 3; i++) {
+                let rows = document.querySelectorAll(`#${gender}Leaderboard .workout${i} tbody tr`);
+                
+                rows.forEach(row => {
+                    let name = row.cells[1].innerText.trim(); // Get Name
+                    let scoreColumnIndex = row.cells.length - 1; // Last column always contains the score
+                    let score = parseInt(row.cells[scoreColumnIndex].innerText) || 0; // Handle empty cells safely
+
+                    if (!scores[name]) {
+                        scores[name] = 0;
+                    }
+                    scores[name] += score;
+                });
+            }
+
+            // Convert scores object into sorted array
+            let sortedScores = Object.entries(scores).sort((a, b) => a[1] - b[1]); // Lower score is better
+
+            // Populate the overall leaderboard
+            let overallTable = document.querySelector(`#${gender}Leaderboard .overall tbody`);
+            overallTable.innerHTML = ""; // Clear previous content
+
+            sortedScores.forEach((entry, index) => {
+                let row = `<tr><td>${index + 1}</td><td>${entry[0]}</td><td>${entry[1]}</td></tr>`;
+                overallTable.innerHTML += row;
+            });
+        }
+
+        function updateAllOverallScores() {
+            calculateOverallScores('male');
+            calculateOverallScores('female');
+        }
+
+        window.onload = updateAllOverallScores;
+    </script>
+</head>
+<body>
+
+    <h1>CrossFit Fareham 2025 Openish</h1>
+
+    <div class="tabs">
+        <div id="maleTab" class="tab active" onclick="showLeaderboard('male')">Male</div>
+        <div id="femaleTab" class="tab" onclick="showLeaderboard('female')">Female</div>
+    </div>
+
+    <div class="leaderboard-container">
+
+        <!-- Male Leaderboard -->
+        <div id="maleLeaderboard" class="leaderboard active">
+            <h2>Male Leaderboard</h2>
+
+            <h3>Workout 1</h3>
+            <table class="workout1">
+                <thead><tr><th>Rank</th><th>Name</th><th>Reps</th><th>Score</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td>Tom Kingdon</td><td>316</td><td>1</td></tr>
+                    <tr><td>2</td><td>Brett Lilley</td><td>270</td><td>2</td></tr>
+                    <tr><td>3</td><td>Peter Nagy</td><td>212</td><td>3</td></tr>
+                    <tr><td>4</td><td>Matt Beard</td><td>210</td><td>4</td></tr>
+                    <tr><td>5</td><td>North Brock</td><td>206</td><td>5</td></tr>
+                    <tr><td>6</td><td>Ryan Lock</td><td>206</td><td>6</td></tr>
+                    <tr><td>7</td><td>Steve Robson</td><td>202</td><td>7</td></tr>
+                    <tr><td>8</td><td>Sam Winterburn</td><td>200</td><td>8</td></tr>
+                    <tr><td>9</td><td>Alex Hamilton</td><td>198</td><td>9</td></tr>
+                    <tr><td>10</td><td>Graham Mowatt</td><td>180</td><td>10</td></tr>
+                    <tr><td>11</td><td>Stephen Shearer</td><td>168</td><td>11</td></tr>
+                    <tr><td>12</td><td>Andy Field</td><td>163</td><td>12</td></tr>
+                    <tr><td>13</td><td>Adam Hague</td><td>162</td><td>13</td></tr>
+		    <tr><td>14</td><td>Matt Thomas</td><td>150</td><td>14</td></tr> 
+                    <tr><td>15</td><td>Ricky Harvey</td><td>146</td><td>15</td></tr>             
+                    <tr><td>16</td><td>Alex Buck</td><td>136</td><td>16</td></tr>
+                    <tr><td>17</td><td>Kyriacos Elia</td><td>120s</td><td>17</td></tr>
+                    <tr><td>18</td><td>Josh Coupland</td><td></td><td>18</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Workout 2</h3>
+            <table class="workout2">
+                <thead><tr><th>Rank</th><th>Name</th><th>Score</th></tr></thead>
+                <tbody>
+                </tbody>
+            </table>
+
+            <h3>Workout 3</h3>
+            <table class="workout3">
+                <thead><tr><th>Rank</th><th>Name</th><th>Score</th></tr></thead>
+                <tbody>
+                </tbody>
+            </table>
+
+            <h3>Overall</h3>
+            <table class="overall">
+                <thead><tr><th>Rank</th><th>Name</th><th>Total Score</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- Female Leaderboard -->
+        <div id="femaleLeaderboard" class="leaderboard">
+            <h2>Female Leaderboard</h2>
+
+            <h3>Workout 1</h3>
+                        <table class="workout1">
+                <thead><tr><th>Rank</th><th>Name</th><th>Reps</th><th>Score</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td>Kelly Friel</td><td>266</td><td>1</td></tr>
+                    <tr><td>2</td><td>Jaz Harlow</td><td>219</td><td>2</td></tr>
+                    <tr><td>3</td><td>Elisabeth Zambo</td><td>181</td><td>3</td></tr>
+                    <tr><td>4</td><td>Sharan Marley</td><td>164</td><td>4</td></tr>
+                    <tr><td>4</td><td>Liz Short</td><td>164</td><td>4</td></tr>
+                    <tr><td>5</td><td>Lisa Wren</td><td>143</td><td>5</td></tr>
+                    <tr><td>6</td><td>Asha Abbott</td><td>122</td><td>6</td></tr>
+                    <tr><td>7</td><td>Lottie Hill</td><td>111</td><td>7</td></tr>
+                    <tr><td>8</td><td>Zoe Daly</td><td>185s</td><td>8</td></tr>
+                    <tr><td>9</td><td>Jennifer Robinson</td><td>177s</td><td>9</td></tr>
+                    <tr><td>10</td><td>Emily McClean</td><td>175s</td><td>10</td></tr>
+                    <tr><td>11</td><td>Chloe Stratton</td><td>105s</td><td>11</td></tr>
+                    <tr><td>12</td><td>Gemma Dobson</td><td></td><td>12</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Workout 2</h3>
+            <table class="workout2">
+                <thead><tr><th>Rank</th><th>Name</th><th>Score</th></tr></thead>
+                <tbody>
+                </tbody>
+            </table>
+
+            <h3>Workout 3</h3>
+            <table class="workout3">
+                <thead><tr><th>Rank</th><th>Name</th><th>Score</th></tr></thead>
+                <tbody>
+                </tbody>
+            </table>
+
+            <h3>Overall</h3>
+            <table class="overall">
+                <thead><tr><th>Rank</th><th>Name</th><th>Total Score</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+    </div>
+
+</body>
+</html>
