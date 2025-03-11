@@ -7,20 +7,31 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #1e1e1e;
-            color: white;
+            margin: 40px;
+            background-color: #f4f4f4;
+        }
+        table {
+            width: 100%;
+            background: white;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
             text-align: center;
-            margin: 0;
-            padding: 20px;
+            border-bottom: 1px solid #ddd;
         }
-        .leaderboard-container {
+        th {
+            background-color: #ff6600;
+            color: white;
+            cursor: pointer;
+        }
+        .container {
             max-width: 900px;
-            margin: 0 auto;
-        }
-        h1 {
-            color: #f4a261;
-            font-size: 2rem;
-            margin-bottom: 20px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
         }
         .tabs {
             display: flex;
@@ -28,16 +39,15 @@
             margin-bottom: 20px;
         }
         .tab {
-            background-color: #f4a261;
-            color: #1e1e1e;
             padding: 10px 20px;
-            margin: 0 10px;
-            border-radius: 5px;
             cursor: pointer;
-            font-weight: bold;
+            background: #ddd;
+            margin: 0 5px;
+            border-radius: 5px;
         }
         .tab.active {
-            background-color: #e76f51;
+            background: #ff6600;
+            color: white;
         }
         .leaderboard {
             display: none;
@@ -45,92 +55,15 @@
         .leaderboard.active {
             display: block;
         }
-        h2 {
-            background-color: #f4a261;
-            color: #1e1e1e;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-        h3 {
-            color: #f4a261;
-            margin-top: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-            background: #2a2a2a;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-        th, td {
-            border: 1px solid #f4a261;
-            padding: 10px;
-            text-align: center;
-        }
-        th {
-            background-color: #f4a261;
-            color: #1e1e1e;
-        }
-        tr:nth-child(even) {
-            background-color: #333;
-        }
     </style>
-    <script>
-        function showLeaderboard(gender) {
-            document.getElementById('maleLeaderboard').classList.remove('active');
-            document.getElementById('femaleLeaderboard').classList.remove('active');
-            document.getElementById(gender + 'Leaderboard').classList.add('active');
 
-            document.getElementById('maleTab').classList.remove('active');
-            document.getElementById('femaleTab').classList.remove('active');
-            document.getElementById(gender + 'Tab').classList.add('active');
-        }
+    <!-- Include jQuery & DataTables -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
 
-        function calculateOverallScores(gender) {
-            let scores = {};
-
-            // Loop through each workout table
-            for (let i = 1; i <= 3; i++) {
-                let rows = document.querySelectorAll(`#${gender}Leaderboard .workout${i} tbody tr`);
-                
-                rows.forEach(row => {
-                    let name = row.cells[1].innerText.trim(); // Get Name
-                    let scoreColumnIndex = row.cells.length - 1; // Last column always contains the score
-                    let score = parseInt(row.cells[scoreColumnIndex].innerText) || 0; // Handle empty cells safely
-
-                    if (!scores[name]) {
-                        scores[name] = 0;
-                    }
-                    scores[name] += score;
-                });
-            }
-
-            // Convert scores object into sorted array
-            let sortedScores = Object.entries(scores).sort((a, b) => a[1] - b[1]); // Lower score is better
-
-            // Populate the overall leaderboard
-            let overallTable = document.querySelector(`#${gender}Leaderboard .overall tbody`);
-            overallTable.innerHTML = ""; // Clear previous content
-
-            sortedScores.forEach((entry, index) => {
-                let row = `<tr><td>${index + 1}</td><td>${entry[0]}</td><td>${entry[1]}</td></tr>`;
-                overallTable.innerHTML += row;
-            });
-        }
-
-        function updateAllOverallScores() {
-            calculateOverallScores('male');
-            calculateOverallScores('female');
-        }
-
-        window.onload = updateAllOverallScores;
-    </script>
 </head>
 <body>
-
-    <h1>CrossFit Fareham 2025 Openish</h1>
 
     <div class="tabs">
         <div id="maleTab" class="tab active" onclick="showLeaderboard('male')">Male</div>
@@ -142,149 +75,460 @@
         <!-- Male Leaderboard -->
         <div id="maleLeaderboard" class="leaderboard active">
             <h2>Male Leaderboard</h2>
-
-            <h3>Workout 1</h3>
-            <table class="workout1">
-                <thead><tr><th>Rank</th><th>Name</th><th>Reps</th><th>Score</th></tr></thead>
+            <table id="maleTable">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Athlete</th>
+                        <th>25.1</th>
+                        <th>25.2</th>
+                        <th>25.3</th>
+                        <th>Overall</th>
+                    </tr>
+                </thead>
                 <tbody>
-                    <tr><td>1</td><td>Tom Kingdon</td><td>316</td><td>1</td></tr>
-                    <tr><td>2</td><td>Brett Lilley</td><td>270</td><td>2</td></tr>
-		    <tr><td>3</td><td>Darren Halls</td><td>226</td><td>3</td></tr>   
-		    <tr><td>4</td><td>Chris Hall</td><td>220</td><td>4</td></tr>                    
-		    <tr><td>5</td><td>Peter Nagy</td><td>212</td><td>5</td></tr>
-                    <tr><td>6</td><td>Ian McLaren</td><td>210</td><td>6</td></tr>
-		    <tr><td>6</td><td>Matt Beard</td><td>210</td><td>6</td></tr>
-                    <tr><td>7</td><td>Rob Skinner</td><td>208</td><td>7</td></tr>
-                    <tr><td>8</td><td>North Brock</td><td>206</td><td>8</td></tr>
-                    <tr><td>8</td><td>Ryan Lock</td><td>206</td><td>8</td></tr>
-                    <tr><td>9</td><td>Steve Robson</td><td>202</td><td>9</td></tr>
-                    <tr><td>10</td><td>Sam Winterburn</td><td>200</td><td>10</td></tr>
-                    <tr><td>11</td><td>Alex Hamilton</td><td>198</td><td>11</td></tr>
-		    <tr><td>12</td><td>Stephen Shearer</td><td>191</td><td>12</td></tr>
-		    <tr><td>13</td><td>Andy Field</td><td>186</td><td>13</td></tr>
-                    <tr><td>14</td><td>Graham Mowatt</td><td>180</td><td>14</td></tr>
-                    <tr><td>14</td><td>Shaun Visser</td><td>180</td><td>14</td></tr>
-                    <tr><td>15</td><td>Adam Hague</td><td>162</td><td>15</td></tr>
-		    <tr><td>16</td><td>Matt Thomas</td><td>150</td><td>16</td></tr> 
-                    <tr><td>17</td><td>Ricky Harvey</td><td>146</td><td>17</td></tr>             
-                    <tr><td>18</td><td>Alex Buck</td><td>136</td><td>18</td></tr>
-                    <tr><td>19</td><td>Kyriacos Elia</td><td>120s</td><td>19</td></tr>
-                    <tr><td>20</td><td>Josh Coupland</td><td>0</td><td>20</td></tr>
+<tr data-athlete="Tom Kingdon">
+                <td></td>
+                <td>Tom Kingdon</td>
+                <td data-score="1">316</td>
+                <td data-score="1">5:11</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Brett Lilley">
+                <td></td>
+                <td>Brett Lilley</td>
+                <td data-score="2">270</td>
+                <td data-score="2">7:38</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Darren Halls">
+                <td></td>
+                <td>Darren Halls</td>
+                <td data-score="3">226</td>
+                <td data-score="5">204</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Peter Nagy">
+                <td></td>
+                <td>Peter Nagy</td>
+                <td data-score="5">212</td>
+                <td data-score="6">168</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Ian McLaren">
+                <td></td>
+                <td>Ian McLaren</td>
+                <td data-score="6">210</td>
+                <td data-score="3">209</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Matt Beard">
+                <td></td>
+                <td>Matt Beard</td>
+                <td data-score="6">210</td>
+                <td data-score="24">-</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Rob Skinner">
+                <td></td>
+                <td>Rob Skinner</td>
+                <td data-score="7">208</td>
+                <td data-score="4">207</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="North Brock">
+                <td></td>
+                <td>North Brock</td>
+                <td data-score="8">206</td>
+                <td data-score="8">163</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Ryan Lock">
+                <td></td>
+                <td>Ryan Lock</td>
+                <td data-score="8">206</td>
+                <td data-score="14">150</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Steve Robson">
+                <td></td>
+                <td>Steve Robson</td>
+                <td data-score="9">202</td>
+                <td data-score="10">159</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Sam Winterburn">
+                <td></td>
+                <td>Sam Winterburn</td>
+                <td data-score="10">200</td>
+                <td data-score="24">-</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Alex Hamilton">
+                <td></td>
+                <td>Alex Hamilton</td>
+                <td data-score="11">198</td>
+                <td data-score="10">159</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Stephen Shearer">
+                <td></td>
+                <td>Stephen Shearer</td>
+                <td data-score="12">191</td>
+                <td data-score="7">166</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Andy Field">
+                <td></td>
+                <td>Andy Field</td>
+                <td data-score="13">186</td>
+                <td data-score="9">160</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Graham Mowatt">
+                <td></td>
+                <td>Graham Mowatt</td>
+                <td data-score="14">180</td>
+                <td data-score="13">156</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Shaun Visser">
+                <td></td>
+                <td>Shaun Visser</td>
+                <td data-score="14">180</td>
+                <td data-score="13">156</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Adam Hague">
+                <td></td>
+                <td>Adam Hague</td>
+                <td data-score="15">162</td>
+                <td data-score="11">159</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Matt Thomas">
+                <td></td>
+                <td>Matt Thomas</td>
+                <td data-score="16">150</td>
+                <td data-score="15">143</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Ricky Harvey">
+                <td></td>
+                <td>Ricky Harvey</td>
+                <td data-score="17">146</td>
+                <td data-score="16">124</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Alex Buck">
+                <td></td>
+                <td>Alex Buck</td>
+                <td data-score="18">136</td>
+                <td data-score="24">-</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Kyriacos Elia">
+                <td></td>
+                <td>Kyriacos Elia</td>
+                <td data-score="19">120s</td>
+                <td data-score="18">90s</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Josh Coupland">
+                <td></td>
+                <td>Josh Coupland</td>
+                <td data-score="24">-</td>
+                <td data-score="12">158</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Ray Ewen">
+                <td></td>
+                <td>Ray Ewen</td>
+                <td data-score="17">146</td>
+                <td data-score="17">96</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Chris Hall">
+                <td></td>
+                <td>Chris Hall</td>
+                <td data-score="4">220</td>
+                <td data-score="24">-</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
                 </tbody>
-            </table>
-
-            <h3>Workout 2</h3>
-            <table class="workout2">
-                <thead><tr><th>Rank</th><th>Name</th><th>Reps</th><th>Score</th></tr></thead>
-                <tbody>
-		    <tr><td>1</td><td>Ricky Harvey</td><td>100</td><td>1</td></tr>
-		    <tr><td>2</td><td>Tom Kingdon</td><td>0</td><td>2</td></tr>
-                    <tr><td>2</td><td>Brett Lilley</td><td>0</td><td>2</td></tr>
-		    <tr><td>2</td><td>Darren Halls</td><td>0</td><td>2</td></tr>   
-		    <tr><td>2</td><td>Chris Hall</td><td>0</td><td>2</td></tr>                    
-		    <tr><td>2</td><td>Peter Nagy</td><td>0</td><td>2</td></tr>
-                    <tr><td>2</td><td>Ian McLaren</td><td>0</td><td>2</td></tr>
-		    <tr><td>2</td><td>Matt Beard</td><td>0</td><td>2</td></tr>
-                    <tr><td>2</td><td>Rob Skinner</td><td>0</td><td>2</td></tr>
-                    <tr><td>2</td><td>North Brock</td><td>0</td><td>2</td></tr>
-                    <tr><td>2</td><td>Ryan Lock</td><td>0</td><td>2</td></tr>
-                    <tr><td>2</td><td>Steve Robson</td><td>0</td><td>2</td></tr>
-                    <tr><td>2</td><td>Sam Winterburn</td><td>0</td><td>2</td></tr>
-                    <tr><td>2</td><td>Alex Hamilton</td><td>0</td><td>2</td></tr>
-		    <tr><td>2</td><td>Stephen Shearer</td><td>0</td><td>2</td></tr>
-		    <tr><td>2</td><td>Andy Field</td><td>0</td><td>2</td></tr>
-                    <tr><td>2</td><td>Graham Mowatt</td><td>0</td><td>2</td></tr>
-                    <tr><td>2</td><td>Shaun Visser</td><td>0</td><td>2</td></tr>
-                    <tr><td>2</td><td>Adam Hague</td><td>0</td><td>2</td></tr>
-		    <tr><td>2</td><td>Matt Thomas</td><td>0</td><td>2</td></tr>        
-                    <tr><td>2</td><td>Alex Buck</td><td>0</td><td>2</td></tr>
-                    <tr><td>2</td><td>Kyriacos Elia</td><td>0</td><td>2</td></tr>
-                    <tr><td>2</td><td>Josh Coupland</td><td>0</td><td>2</td></tr>
-                </tbody>
-            </table>
-
-            <h3>Workout 3</h3>
-            <table class="workout3">
-                <thead><tr><th>Rank</th><th>Name</th><th>Score</th></tr></thead>
-                <tbody>
-                </tbody>
-            </table>
-
-            <h3>Overall</h3>
-            <table class="overall">
-                <thead><tr><th>Rank</th><th>Name</th><th>Total Score</th></tr></thead>
-                <tbody></tbody>
             </table>
         </div>
 
         <!-- Female Leaderboard -->
         <div id="femaleLeaderboard" class="leaderboard">
-            <h2>Female Leaderboard</h2>
-
-            <h3>Workout 1</h3>
-                        <table class="workout1">
-                <thead><tr><th>Rank</th><th>Name</th><th>Time/Reps</th><th>Score</th></tr></thead>
+            <h2>Female Leaderboard</h2> <!-- Fixed incorrect label -->
+            <table id="femaleTable"> <!-- Fixed duplicate ID -->
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Athlete</th>
+                        <th>25.1</th>
+                        <th>25.2</th>
+                        <th>25.3</th>
+                        <th>Overall</th>
+                    </tr>
+                </thead>
                 <tbody>
-                    <tr><td>1</td><td>Kelly Friel</td><td>266</td><td>1</td></tr>
-                    <tr><td>2</td><td>Jaz Harlow</td><td>219</td><td>2</td></tr>
-                    <tr><td>3</td><td>Elisabeth Zambo</td><td>181</td><td>3</td></tr>
-                    <tr><td>4</td><td>Sharan Marley</td><td>164</td><td>4</td></tr>
-                    <tr><td>4</td><td>Liz Short</td><td>164</td><td>4</td></tr>
-		    <tr><td>5</td><td>Sarah Stroud</td><td>146</td><td>5</td></tr>
-                    <tr><td>6</td><td>Lisa Wren</td><td>143</td><td>6</td></tr>
-                    <tr><td>7</td><td>Helen Robson</td><td>142</td><td>7</td></tr>
-                    <tr><td>8</td><td>Asha Abbott</td><td>122</td><td>8</td></tr>
-		    <tr><td>9</td><td>Anne Nash</td><td>112</td><td>9</td></tr>
-                    <tr><td>10</td><td>Lottie Hill</td><td>111</td><td>10</td></tr>
-                    <tr><td>11</td><td>Jennifer Robinson</td><td>190s</td><td>11</td></tr>
-			<tr><td>12</td><td>Zoe Daly</td><td>185s</td><td>12</td></tr>
-                    <tr><td>13</td><td>Emily McClean</td><td>175s</td><td>13</td></tr>
-                    <tr><td>14</td><td>Sarah McGinley</td><td>112s</td><td>14</td></tr>
-			<tr><td>15</td><td>Chloe Stratton</td><td>105s</td><td>15</td></tr>
-                    <tr><td>16</td><td>Gemma Dobson</td><td></td><td>16</td></tr>
+                    <tr data-athlete="Kelly Friel">
+                <td></td>
+                <td>Kelly Friel</td>
+                <td data-score="1">266</td>
+                <td data-score="1">7:30</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Jaz Harlow">
+                <td></td>
+                <td>Jaz Harlow</td>
+                <td data-score="2">219</td>
+                <td data-score="3">156</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Rhian Thomas">
+                <td></td>
+                <td>Rhian Thomas</td>
+                <td data-score="3">206</td>
+                <td data-score="2">158</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Elisabeth Zambo">
+                <td></td>
+                <td>Elisabeth Zambo</td>
+                <td data-score="4">181</td>
+                <td data-score="6">94</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Sharan Marley">
+                <td></td>
+                <td>Sharan Marley</td>
+                <td data-score="4">164</td>
+                <td data-score="5">96</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Liz Short">
+                <td></td>
+                <td>Liz Short</td>
+                <td data-score="5">164</td>
+                <td data-score="4">153</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Sarah Stroud">
+                <td></td>
+                <td>Sarah Stroud</td>
+                <td data-score="6">146</td>
+                <td data-score="14">84s (3:15)</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Lisa Wren">
+                <td></td>
+                <td>Lisa Wren</td>
+                <td data-score="7">143</td>
+                <td data-score="10">156s (09:09)</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Helen Robson">
+                <td></td>
+                <td>Helen Robson</td>
+                <td data-score="8">142</td>
+                <td data-score="9">156s (08:40)</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Asha Abbott">
+                <td></td>
+                <td>Asha Abbott</td>
+                <td data-score="9">122</td>
+                <td data-score="13">84s (2:33)</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Anne Nash">
+                <td></td>
+                <td>Anne Nash</td>
+                <td data-score="10">112</td>
+                <td data-score="7">21</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Lottie Hill">
+                <td></td>
+                <td>Lottie Hill</td>
+                <td data-score="11">111</td>
+                <td data-score="18">-</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Jennifer Robinson">
+                <td></td>
+                <td>Jennifer Robinson</td>
+                <td data-score="12">190s</td>
+                <td data-score="18">-</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Zoe Daly">
+                <td></td>
+                <td>Zoe Daly</td>
+                <td data-score="13">185s</td>
+                <td data-score="11">156s (11:25)</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Emily McClean">
+                <td></td>
+                <td>Emily McClean</td>
+                <td data-score="14">175s</td>
+                <td data-score="12">102s</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Sarah McGinley">
+                <td></td>
+                <td>Sarah McGinley</td>
+                <td data-score="15">112s</td>
+                <td data-score="18">-</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Chloe Stratton">
+                <td></td>
+                <td>Chloe Stratton</td>
+                <td data-score="16">105s</td>
+                <td data-score="8">170s</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
+            <tr data-athlete="Gemma Dobson">
+                <td></td>
+                <td>Gemma Dobson</td>
+                <td data-score="18">-</td>
+                <td data-score="18">-</td>
+                <td data-score="0">-</td>
+                <td class="overall-score"></td>
+            </tr>
                 </tbody>
-            </table>
-
-            <h3>Workout 2</h3>
-            <table class="workout2">
-                <thead><tr><th>Rank</th><th>Name</th><th>Time/Reps</th><th>Score</th></tr></thead>
-                <tbody>
-			                    <tr><td>1</td><td>Kelly Friel</td><td>0</td><td>1</td></tr>
-                    <tr><td>1</td><td>Jaz Harlow</td><td>0</td><td>1</td></tr>
-                    <tr><td>1</td><td>Elisabeth Zambo</td><td>0</td><td>1</td></tr>
-                    <tr><td>1</td><td>Sharan Marley</td><td>0</td><td>1</td></tr>
-                    <tr><td>1</td><td>Liz Short</td><td>0</td><td>1</td></tr>
-		    <tr><td>1</td><td>Sarah Stroud</td><td>0</td><td>1</td></tr>
-                    <tr><td>1</td><td>Lisa Wren</td><td>0</td><td>1</td></tr>
-                    <tr><td>1</td><td>Helen Robson</td><td>0</td><td>1</td></tr>
-                    <tr><td>1</td><td>Asha Abbott</td><td>0</td><td>1</td></tr>
-		    <tr><td>1</td><td>Anne Nash</td><td>0</td><td>1</td></tr>
-                    <tr><td>1</td><td>Lottie Hill</td><td>0</td><td>1</td></tr>
-                    <tr><td>1</td><td>Jennifer Robinson</td><td>0</td><td>1</td></tr>
-			<tr><td>2</td><td>Zoe Daly</td><td>0</td><td>1</td></tr>
-                    <tr><td>1</td><td>Emily McClean</td><td>0</td><td>1</td></tr>
-                    <tr><td>1</td><td>Sarah McGinley</td><td>0</td><td>1</td></tr>
-			<tr><td>1</td><td>Chloe Stratton</td><td>0</td><td>1</td></tr>
-                    <tr><td>1</td><td>Gemma Dobson</td><td>0</td><td>1</td></tr>
-                </tbody>
-		    
-            </table>
-
-            <h3>Workout 3</h3>
-            <table class="workout3">
-                <thead><tr><th>Rank</th><th>Name</th><th>Score</th></tr></thead>
-                <tbody>
-                </tbody>
-            </table>
-
-            <h3>Overall</h3>
-            <table class="overall">
-                <thead><tr><th>Rank</th><th>Name</th><th>Total Score</th></tr></thead>
-                <tbody></tbody>
             </table>
         </div>
 
     </div>
 
+    <!-- Include jQuery & DataTables -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+<script>
+$(document).ready(function () {
+    // Initialize DataTables
+    var table = $("#maleTable, #femaleTable").DataTable({
+        paging: false,
+        searching: false,
+        info: false,
+        "ordering": true, // Enable DataTables ordering
+        "columnDefs": [
+            {
+                "targets": [1, 2, 3], // Assuming columns 1, 2, 3 are 25.1, 25.2, and 25.3
+                "render": function (data, type, row, meta) {
+                    if (type === 'sort') {
+                        // Sort using the data-score value (which is numeric)
+                        var score = $(row).find('td').eq(meta.col).attr('data-score') || 0;
+                        return parseInt(score);
+                    }
+                    return data;  // Render data as normal
+                }
+            }
+        ],
+        "order": [[0, 'asc']],  // Default sorting by Rank (column 0)
+    });
+
+    // Function to update the overall score for each row
+    function updateOverallScores(tableId) {
+        $("#" + tableId + " tbody tr").each(function () {
+            let totalScore = 0;
+            let scoreCount = 0;
+
+            // Loop through each score cell
+            $(this).find("td[data-score]").each(function () {
+                let score = $(this).attr("data-score");
+                if (!isNaN(score) && score !== "-") {
+                    totalScore += parseInt(score);
+                    scoreCount++;
+                }
+            });
+
+            // Update the overall score cell
+            $(this).find(".overall-score").text(totalScore);
+        });
+
+        // Sort the table by overall score (lower score is better)
+        let rows = $("#" + tableId + " tbody tr").get();
+        rows.sort(function (a, b) {
+            let aScore = parseInt($(a).find(".overall-score").text()) || 9999;
+            let bScore = parseInt($(b).find(".overall-score").text()) || 9999;
+            return aScore - bScore; // Ascending order (lowest score is best)
+        });
+
+        // Reorder the rows based on the sorted score
+        $.each(rows, function (index, row) {
+            $("#" + tableId + " tbody").append(row);
+            $(row).find("td:first").text(index + 1); // Update rank (first column)
+        });
+    }
+
+    // Tab switching function
+    function showLeaderboard(gender) {
+        $(".tab").removeClass("active");
+        $("#" + gender + "Tab").addClass("active");
+
+        $(".leaderboard").removeClass("active");
+        $("#" + gender + "Leaderboard").addClass("active");
+    }
+
+    // Run score calculation and sorting
+    updateOverallScores("maleTable");
+    updateOverallScores("femaleTable");
+
+    // Assign tab switch event
+    $(".tab").click(function () {
+        let gender = $(this).attr("id").replace("Tab", "");
+        showLeaderboard(gender);
+    });
+});
+</script>
 </body>
 </html>
